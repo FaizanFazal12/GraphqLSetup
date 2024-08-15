@@ -6,12 +6,15 @@ import { expressMiddleware } from '@apollo/server/express4';
 const typeDefs = `
   type Query {
     hello: String
+    say(name:String):String
   }
 `;
 
 const resolvers = {
   Query: {
     hello: () => 'Hello world!',
+   say : (_: any, { name }: { name: string }): string => `Hello, how are you ${name}?`,
+
   },
 };
 
@@ -29,7 +32,7 @@ async function Init() {
   // Use the expressMiddleware for /graphql endpoint
   app.use('/graphql', expressMiddleware(server));
 
-  const PORT = process.env.PORT || 8000;
+  const PORT = process.env.PORT || 8001;
   app.listen(PORT, () => {
     console.log('Connected to the port ' + PORT);
   });
