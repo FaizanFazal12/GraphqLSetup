@@ -1,6 +1,7 @@
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
+import { prismaClient } from './lib/db';
 
 // Sample typeDefs and resolvers
 const typeDefs = `
@@ -8,13 +9,31 @@ const typeDefs = `
     hello: String
     say(name:String):String
   }
+    type Mutation{
+    createUser(firstName: String!, lastName: String! , email:String! , password:String!): Boolean
+    }
+
 `;
 
 const resolvers = {
   Query: {
     hello: () => 'Hello world!',
-   say : (_: any, { name }: { name: string }): string => `Hello, how are you ${name}?`,
-
+    say: (_: any, { name }: { name: string }): string => `Hello, how are you ${name}?`,
+  },
+  Mutation: {
+    createUser: async (_: any, { firstName, lastName, email, password }: { firstName: string; lastName: string; email: string; password: string; }) => {
+      const newUser = await prismaClient.user.create({
+        data: {
+          firstName,
+          lastName,
+          email,
+          password,
+          salt: 'demo salt', // If you intend to pass 'salt' from the arguments
+        },
+      });
+      console.log(newUser)
+      return true; // Returning the newly created user object
+    },
   },
 };
 
